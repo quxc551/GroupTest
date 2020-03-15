@@ -2,7 +2,8 @@
 #include "detector.h"
 #include "opencv2/opencv.hpp" //opencv 的头文件
 #include "slicer.h"
-#include "FileToPicture.h"
+#include "FileToVedio.h"
+#include "FileToMp4.h"
 using namespace std;
 
 using namespace cv; //opencv 的命名空间
@@ -10,22 +11,34 @@ using namespace cv; //opencv 的命名空间
 
 int main()
 {
-    Mat imgGray, res;
-    for (int i = 0; i <= 100; i++)
-    {
-        cout << i << endl;
-        Mat img = imread("C:\\Users\\yuyua\\Desktop\\test.jpg");
-        // Mat img = imread("D:\\QR_Code\\QR_Code" + to_string(i) + ".jpg");
-        cvtColor(img, imgGray, COLOR_BGR2GRAY);
-        threshold(imgGray, res, 128, 255, THRESH_BINARY_INV);
-        Detector d(res, 108, 192, 10);
-        if (!d.Detect())throw;
-        d.GetBinaryData();
-    }
+	FileToVedio a(R"(D:\test.txt)");
+	a.GenerateVedio(R"(D:\QR_Code\QR_Code.mp4)", 1080, 1920, 10);
+	
+	/*FileToMp4 a;
+	a.MakePictureSequence();*/
+	int start = getTickCount();   
 
-    
-    // FileToPicture a;
-    // a.MakePictureSequence();
+	Mat imgGray, res;
+	Mat img;
+	VedioSlicer DT(R"(C:\Users\yuyua\Desktop\录制视频.mp4)");
+	int i = 0;
+	while (1)
+	{
+		// cout << ++i;
+		img = DT.GetNextFrame();
+		// img = imread(".//1.jpg");
+		if (img.empty())
+		{
+			break;
+		}
+		//imwrite(".//1.jpg", res);
+		Detector d(img, 108, 192, 10);
+		if (!d.Detect())throw;
+		d.GetBinaryData();
+	}
 
-    return 0;
+	int end = getTickCount();
+	int last = end - start;
+	cout << "time consume: " << last / getTickFrequency() << 's' << endl;
+	return 0;
 }
